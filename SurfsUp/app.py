@@ -1,3 +1,4 @@
+#Tutor was helpful in refractoring code
 # Import the dependencies.
 import pandas as pd
 import numpy as np
@@ -41,7 +42,7 @@ app = Flask(__name__)
 def welcome():
     """List api routes"""
     return (
-        f"HOMEPAGE<br/>"
+        f"Honolulu, Hawaii Climate Analysis<br/>"
         f"Available Routes:<br/>"
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
