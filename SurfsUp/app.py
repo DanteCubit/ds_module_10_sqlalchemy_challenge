@@ -54,6 +54,8 @@ def welcome():
 #SQL Queries
 @app.route("/api/v1.0/precipitation")
 def precipitation():
+    """Return the precipitation data for the last year"""
+    # Calculate the date 1 year ago from last date in database
     prev_year = dt.date(2017,8,23) - dt.timedelta(days=365)
     results = session.query(Measurement.date, Measurement.prcp).\
     filter(Measurement.date >= prev_year).\
@@ -61,32 +63,47 @@ def precipitation():
 
     session.close()
     prcep = {date: prcp for date, prcp in results}
+    
+    # Return the results
     return jsonify(prcep)
 
 @app.route("/api/v1.0/stations")
 def stations():
+    """Return a list of stations."""
     results = session.query(Station.station).all()
     session.close()
 
+    #convert results to a list
     stations = list(np.ravel(results))
 
+    # Return the results
     return jsonify(stations)
 
 @app.route("/api/v1.0/tobs")
 def tobs():
+    """Return the temperature observations (tobs) for previous year."""
+    # Calculate the date 1 year ago from last date in database
     prev_year = dt.date(2017,8,23) - dt.timedelta(days=365)
 
+    # Query the primary station for all tobs from the last year
     results = session.query(Measurement.tobs).\
         filter(Measurement.station == "USC00519281").\
         filter(Measurement.date >= prev_year).all()
     
     session.close()
+    #convert results to a list
     temps = list(np.ravel(results))
+    
+    # Return the results
     return jsonify(temps)
 
 @app.route("/api/v1.0/temps/<start>")
 @app.route("/api/v1.0/temps/<start>/<end>")
 def stats(start=None, end=None):
+    """Return TMIN, TAVG, TMAX."""
+
+    # Select statement
+
     sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
 
     if not end:
@@ -99,7 +116,7 @@ def stats(start=None, end=None):
         temps = list(np.ravel(results))
         return jsonify(temps)
     
-
+    # calculate TMIN, TAVG, TMAX with start and stop
     start = dt.datetime.strptime(start, "%Y-%d-%m")
     end = dt.datetime.strptime(end, "%Y-%d-%m")
 
@@ -107,6 +124,8 @@ def stats(start=None, end=None):
         filter(Measurement.date >=start).\
         filter(Measurement.date <= end).all()
     session.close()
+    
+    #convert results to a list
     temps = list(np.ravel(results))
     return jsonify(temps)
 
